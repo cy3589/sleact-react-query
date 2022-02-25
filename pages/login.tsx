@@ -31,11 +31,7 @@ const Login = () => {
   >(
     'user',
     (mutationData) =>
-      axios
-        .post('http://192.168.219.100:3095/api/users/login', mutationData, {
-          withCredentials: true,
-        })
-        .then((r) => r.data),
+      axios.post('/users/login', mutationData).then((r) => r.data),
     {
       onMutate() {
         setLogInError(false);
@@ -55,7 +51,7 @@ const Login = () => {
     },
     [email, mutation, password],
   );
-  if (data && !isLoading) router.push('/workspace/channel');
+  if (data && !isLoading) router.replace('/workspace/channel');
   if (isLoading) return <div>Loading...</div>;
   return (
     <div id="container">

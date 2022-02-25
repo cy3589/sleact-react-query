@@ -10,6 +10,7 @@ import {
   ProfileModal,
   RightMenu,
   WorkspaceButton,
+  WorkspaceModal,
   //   WorkspaceButton,
   //   WorkspaceModal,
   WorkspaceName,
@@ -40,22 +41,36 @@ import Menu from '@components/Menu';
 import { Button, Input, Label } from '@styles/signup-styled';
 import useInput from '@hooks/useInput';
 import Modal from '@components/Modal';
+import CreateChannelModal from '@components/CreateChannelModal';
 
 const Workspace: FC = ({ children }) => {
+  const queryClient = useQueryClient();
+
   toast.configure();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { data, isLoading }: { data?: user; isLoading: boolean } = useQuery(
     'user',
     getUserDataUseCookie,
   );
-
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] =
+    useState<boolean>(false);
+  const [showWorkspaceModal, setShowWorkspaceModal] = useState<boolean>(false);
+  const [showCreateChannelModal, setShowCreateChannelModal] =
     useState<boolean>(false);
   const [newWorkspace, onChangeNewWorkspace] = useInput('');
   const [newUrl, onChangeNewUrl] = useInput('');
 
+  const onClickAddChannel = useCallback(() => {
+    setShowCreateChannelModal(true);
+  }, []);
+  const logoutFunction = useCallback(async () => {
+    await logoutFetcher();
+    queryClient.setQueryData('user', '');
+  }, [queryClient]);
+  const toggleWorkspaceModal = useCallback(() => {
+    setShowWorkspaceModal((prev) => !prev);
+  }, []);
   const onClickUserProfile = useCallback(
     (e: MouseEvent<HTMLSpanElement | HTMLDivElement> | KeyboardEvent) => {
       e.stopPropagation();
@@ -76,14 +91,10 @@ const Workspace: FC = ({ children }) => {
       if (!newWorkspace || !newWorkspace.trim() || !newUrl || !newUrl.trim())
         return;
       try {
-        await axios.post(
-          'http://192.168.219.100:3095/api/workspaces',
-          {
-            workspace: newWorkspace,
-            url: newUrl,
-          },
-          { withCredentials: true },
-        );
+        await axios.post('/workspaces', {
+          workspace: newWorkspace,
+          url: newUrl,
+        });
         queryClient.refetchQueries('user');
         setShowCreateWorkspaceModal(false);
       } catch (error: unknown) {
@@ -97,10 +108,11 @@ const Workspace: FC = ({ children }) => {
 
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
+    setShowCreateChannelModal(false);
   }, []);
 
   useEffect(() => {
-    if (!data && !isLoading) router.push('/login'); // 로딩이 끝났는데 data가 없다면 login으로 이동
+    if (!data && !isLoading) router.replace('/login'); // 로딩이 끝났는데 data가 없다면 login으로 이동
   }, [data, router, isLoading]);
   if (!data) {
     return null;
@@ -165,8 +177,24 @@ const Workspace: FC = ({ children }) => {
           <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
         </Workspaces>
         <Channels>
-          <WorkspaceName>Sleact</WorkspaceName>
-          <MenuScroll>menu scroll</MenuScroll>
+          <WorkspaceName onClick={toggleWorkspaceModal}>Sleact</WorkspaceName>
+          <MenuScroll>
+            <Menu
+              show={showWorkspaceModal}
+              onCloseModal={toggleWorkspaceModal}
+              style={{ top: 95, left: 80 }}
+            >
+              <WorkspaceModal>
+                <h2>Sleact</h2>
+                <button onClick={onClickAddChannel} type="button">
+                  채널 만들기
+                </button>
+                <button onClick={logoutFunction} type="button">
+                  Logout
+                </button>
+              </WorkspaceModal>
+            </Menu>
+          </MenuScroll>
         </Channels>
         <Chats>{children}</Chats>
       </WorkspaceWrapper>
@@ -187,6 +215,10 @@ const Workspace: FC = ({ children }) => {
           <Button type="submit">생성하기</Button>
         </form>
       </Modal>
+      <CreateChannelModal
+        show={showCreateChannelModal}
+        onCloseModal={onCloseModal}
+      />
     </div>
   );
 };

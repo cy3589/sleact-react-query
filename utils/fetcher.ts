@@ -1,30 +1,31 @@
 import axios from 'axios';
 
-const BACKEND_API_URL = 'http://192.168.219.100:3095/api';
 const fetcher = async ({ queryKey }: { queryKey: string }) => {
   const { data } = await axios.get(queryKey, { withCredentials: true });
   return data;
 };
 
 const getUserDataUseCookie = async () => {
-  console.log('h1');
-  const { data } = await axios.get(`${BACKEND_API_URL}/users`, {
+  const { data } = await axios.get(`/users`, {
     withCredentials: true,
   });
-  console.log(data);
   return data;
 };
 
 const logoutFetcher = async () => {
   try {
-    await axios.post(
-      'http://192.168.219.100:3095/api/users/logout',
-      {},
-      { withCredentials: true },
-    );
+    await axios.post('/users/logout', {}, { withCredentials: true });
   } catch (error) {
     // console.error(error);
   }
 };
+const signUpFetcher = async (mutationData: {
+  email: string;
+  password: string;
+  nickname: string;
+}) => {
+  const { data } = await axios.post('/users', mutationData);
+  return data;
+};
 export default fetcher;
-export { getUserDataUseCookie, logoutFetcher };
+export { getUserDataUseCookie, logoutFetcher, signUpFetcher };

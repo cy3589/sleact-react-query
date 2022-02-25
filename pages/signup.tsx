@@ -12,8 +12,8 @@ import {
   Error,
   Success,
 } from '@styles/signup-styled';
-import fetcher from '@utils/fetcher';
-import axios, { AxiosError } from 'axios';
+import { getUserDataUseCookie, signUpFetcher } from '@utils/fetcher';
+import { AxiosError } from 'axios';
 import { IUser } from '@interfaces/db';
 import { useRouter } from 'next/router';
 
@@ -26,34 +26,23 @@ const SignUp = () => {
   const [mismatchError, setMismatchError] = useState(false);
   const [signUpError, setSignUpError] = useState('');
   const [signUpSuccess, setSignUpSuccess] = useState(false);
-  const { data } = useQuery(
-    'user',
-    () => fetcher({ queryKey: 'http://192.168.219.100:3095/api/users' }),
-    { refetchOnWindowFocus: false },
-  );
+  const { data } = useQuery('user', getUserDataUseCookie);
   const mutation = useMutation<
     IUser,
     AxiosError,
     { email: string; password: string; nickname: string }
-  >(
-    'user',
-    (mutationData) =>
-      axios
-        .post('http://192.168.219.100:3095/api/users', mutationData)
-        .then((r) => r.data),
-    {
-      onMutate() {
-        setSignUpError('');
-        setSignUpSuccess(false);
-      },
-      onSuccess() {
-        setSignUpSuccess(true);
-      },
-      onError(mutationError) {
-        setSignUpError(mutationError.response?.data);
-      },
+  >('user', signUpFetcher, {
+    onMutate() {
+      setSignUpError('');
+      setSignUpSuccess(false);
     },
-  );
+    onSuccess() {
+      setSignUpSuccess(true);
+    },
+    onError(mutationError) {
+      setSignUpError(mutationError.response?.data);
+    },
+  });
   const onSubmit = useCallback(
     (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
