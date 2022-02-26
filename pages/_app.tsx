@@ -1,21 +1,26 @@
 import type { AppProps } from 'next/app';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider, Hydrate } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import axios from 'axios';
-import '../styles/globals.css';
+import '@styles/globals.css';
+import { useRef } from 'react';
 
 axios.defaults.baseURL = 'http://192.168.219.117:3095/api';
 axios.defaults.withCredentials = true;
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { cacheTime: 2000, refetchOnWindowFocus: false },
-    },
-  });
+  const queryClientRef = useRef<QueryClient>();
+  if (!queryClientRef.current)
+    queryClientRef.current = new QueryClient({
+      defaultOptions: {
+        queries: { cacheTime: 2000, refetchOnWindowFocus: false },
+      },
+    });
   return (
-    <QueryClientProvider client={queryClient}>
-      <Component {...pageProps} />
+    <QueryClientProvider client={queryClientRef.current}>
+      <Hydrate state={pageProps.dehydrateState}>
+        <Component {...pageProps} />
+      </Hydrate>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

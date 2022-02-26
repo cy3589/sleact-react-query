@@ -13,7 +13,7 @@ import {
   Header,
 } from '@styles/signup-styled';
 import { IUser } from '@interfaces/db';
-import { getUserDataUseCookie } from '@utils/fetcher';
+import { getMyDataUseCookie } from '@utils/fetcher';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -23,7 +23,10 @@ const Login = () => {
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
-  const { data, isLoading } = useQuery('user', getUserDataUseCookie);
+  const { data: myData, isLoading } = useQuery<IUser>(
+    'user',
+    getMyDataUseCookie,
+  );
   const mutation = useMutation<
     IUser,
     AxiosError,
@@ -51,7 +54,10 @@ const Login = () => {
     },
     [email, mutation, password],
   );
-  if (data && !isLoading) router.replace('/workspace/channel');
+  if (myData && !isLoading)
+    router.replace(
+      `/workspace/${myData.Workspaces[0].url}/channel?channel=일반`,
+    );
   if (isLoading) return <div>Loading...</div>;
   return (
     <div id="container">

@@ -12,7 +12,7 @@ import {
   Error,
   Success,
 } from '@styles/signup-styled';
-import { getUserDataUseCookie, signUpFetcher } from '@utils/fetcher';
+import { getMyDataUseCookie, signUpFetcher } from '@utils/fetcher';
 import { AxiosError } from 'axios';
 import { IUser } from '@interfaces/db';
 import { useRouter } from 'next/router';
@@ -26,7 +26,7 @@ const SignUp = () => {
   const [mismatchError, setMismatchError] = useState(false);
   const [signUpError, setSignUpError] = useState('');
   const [signUpSuccess, setSignUpSuccess] = useState(false);
-  const { data } = useQuery('user', getUserDataUseCookie);
+  const { data } = useQuery('user', getMyDataUseCookie);
   const mutation = useMutation<
     IUser,
     AxiosError,

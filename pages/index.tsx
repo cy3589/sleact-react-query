@@ -5,12 +5,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
 import { useQueryClient } from 'react-query';
-import styles from '../styles/Home.module.css';
+import styles from '@styles/Home.module.css';
 
 const Home: NextPage = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  // const { data } = useQuery('user', getUserDataUseCookie);
   const logoutFunction = useCallback(async () => {
     await logoutFetcher();
     queryClient.setQueryData('user', '');

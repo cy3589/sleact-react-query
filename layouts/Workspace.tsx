@@ -1,6 +1,5 @@
 import {
   AddButton,
-  //   AddButton,
   Channels,
   Chats,
   Header,
@@ -11,8 +10,6 @@ import {
   RightMenu,
   WorkspaceButton,
   WorkspaceModal,
-  //   WorkspaceButton,
-  //   WorkspaceModal,
   WorkspaceName,
   Workspaces,
   WorkspaceWrapper,
@@ -25,6 +22,7 @@ import {
   useState,
   KeyboardEvent,
   FormEvent,
+  ChangeEventHandler,
 } from 'react';
 import gravatar from 'gravatar';
 import { useQuery, useQueryClient } from 'react-query';
@@ -35,22 +33,39 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { getUserDataUseCookie, logoutFetcher } from '@utils/fetcher';
-import { user } from '@interfaces/userInterface';
+import { getMyDataUseCookie, logoutFetcher } from '@utils/fetcher';
 import Menu from '@components/Menu';
 import { Button, Input, Label } from '@styles/signup-styled';
 import useInput from '@hooks/useInput';
 import Modal from '@components/Modal';
 import CreateChannelModal from '@components/CreateChannelModal';
+import { IChannel, IUser } from '@interfaces/db';
+import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
+import InviteChannelModal from '@components/InviteChannelModal';
+import ChannelList from '@components/ChannelList';
+import DMList from '@components/DMList';
+import useSocket from '@hooks/useSocket';
 
-const Workspace: FC = ({ children }) => {
+interface WorkspaceProps {
+  workspace: string;
+  channels?: IChannel[];
+  channel?: string;
+  // channelMembersData?: IUser[];
+}
+const Workspace: FC<WorkspaceProps> = ({
+  children,
+  workspace,
+  channels,
+  channel,
+  // channelMembersData = [],
+}) => {
   const queryClient = useQueryClient();
-
-  toast.configure();
   const router = useRouter();
-  const { data, isLoading }: { data?: user; isLoading: boolean } = useQuery(
+  toast.configure();
+  const { socket, disconnect } = useSocket(workspace);
+  const { data: myData, isLoading: isLoadingMydata } = useQuery<IUser>(
     'user',
-    getUserDataUseCookie,
+    getMyDataUseCookie,
   );
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] =
@@ -60,14 +75,31 @@ const Workspace: FC = ({ children }) => {
     useState<boolean>(false);
   const [newWorkspace, onChangeNewWorkspace] = useInput('');
   const [newUrl, onChangeNewUrl] = useInput('');
+  const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] =
+    useState(false);
+  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
 
-  const onClickAddChannel = useCallback(() => {
-    setShowCreateChannelModal(true);
-  }, []);
+  useEffect(() => {
+    if (channels && myData && socket) {
+      socket.emit('login', {
+        id: myData.id,
+        channels: channels.map((v) => v.id),
+      });
+    }
+  }, [channels, myData, socket, workspace]);
+  useEffect(() => {
+    return () => disconnect();
+  }, [disconnect, workspace]);
   const logoutFunction = useCallback(async () => {
     await logoutFetcher();
     queryClient.setQueryData('user', '');
   }, [queryClient]);
+  const onClickAddChannel = useCallback(() => {
+    setShowCreateChannelModal(true);
+  }, []);
+  const onClickInviteWorkspace = useCallback(() => {
+    setShowInviteWorkspaceModal(true);
+  }, []);
   const toggleWorkspaceModal = useCallback(() => {
     setShowWorkspaceModal((prev) => !prev);
   }, []);
@@ -109,15 +141,19 @@ const Workspace: FC = ({ children }) => {
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
     setShowCreateChannelModal(false);
+    setShowCreateWorkspaceModal(false);
+    setShowInviteChannelModal(false);
+    setShowInviteWorkspaceModal(false);
+    setShowInviteWorkspaceModal(false);
   }, []);
 
   useEffect(() => {
-    if (!data && !isLoading) router.replace('/login'); // 로딩이 끝났는데 data가 없다면 login으로 이동
-  }, [data, router, isLoading]);
-  if (!data) {
+    if (!myData && !isLoadingMydata) router.replace('/login'); // 로딩이 끝났는데 data가 없다면 login으로 이동
+  }, [myData, router, isLoadingMydata]);
+  if (!myData) {
     return null;
   }
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoadingMydata) return <div>Loading...</div>;
   return (
     <div>
       <Header>
@@ -129,8 +165,8 @@ const Workspace: FC = ({ children }) => {
             tabIndex={0}
           >
             <ProfileImg
-              src={gravatar.url(data.nickname, { s: '28px', d: 'retro' })}
-              alt={data.nickname}
+              src={gravatar.url(myData.nickname, { s: '28px', d: 'retro' })}
+              alt={myData.nickname}
             />
             {showUserMenu && (
               <Menu
@@ -142,16 +178,16 @@ const Workspace: FC = ({ children }) => {
                   <div style={{ position: 'relative' }}>
                     <Image
                       src={gravatar
-                        .url(data.nickname, { s: '36px', d: 'retro' })
+                        .url(myData.nickname, { s: '36px', d: 'retro' })
                         .replace('//', 'https://')}
-                      alt={data.nickname}
+                      alt={myData.nickname}
                       width="36px"
                       height="36px"
                       layout="fixed"
                     />
                   </div>
                   <div>
-                    <span id="profile-name">{data.nickname}</span>
+                    <span id="profile-name">{myData.nickname}</span>
                     <span id="profile-active">Active</span>
                   </div>
                 </ProfileModal>
@@ -165,10 +201,11 @@ const Workspace: FC = ({ children }) => {
       </Header>
       <WorkspaceWrapper>
         <Workspaces>
-          {data?.Workspaces.map((ws) => (
+          {myData?.Workspaces.map((ws) => (
             <Link
               key={ws.id}
-              href={`/workspace/${ws.id}/channel/일반`}
+              href={`/workspace/${ws.url}/channel?channel=일반`}
+              // 일반 채널은 Default이므로 일반으로 이동하도록 설계
               passHref
             >
               <WorkspaceButton>{ws.name.slice(0, 1)}</WorkspaceButton>
@@ -186,6 +223,9 @@ const Workspace: FC = ({ children }) => {
             >
               <WorkspaceModal>
                 <h2>Sleact</h2>
+                <button onClick={onClickInviteWorkspace} type="button">
+                  워크스페이스에 사용자 초대
+                </button>
                 <button onClick={onClickAddChannel} type="button">
                   채널 만들기
                 </button>
@@ -194,6 +234,8 @@ const Workspace: FC = ({ children }) => {
                 </button>
               </WorkspaceModal>
             </Menu>
+            <ChannelList channels={channels} workspace={workspace} />
+            <DMList myData={myData} workspace={workspace} />
           </MenuScroll>
         </Channels>
         <Chats>{children}</Chats>
@@ -205,21 +247,48 @@ const Workspace: FC = ({ children }) => {
             <Input
               id="workspace"
               value={newWorkspace}
-              onChange={onChangeNewWorkspace}
+              onChange={
+                onChangeNewWorkspace as ChangeEventHandler<HTMLInputElement>
+              }
             />
           </Label>
           <Label id="workspace-url-label">
             <span>워크스페이스 url</span>
-            <Input id="workspace" value={newUrl} onChange={onChangeNewUrl} />
+            <Input
+              id="workspace"
+              value={newUrl}
+              onChange={onChangeNewUrl as ChangeEventHandler<HTMLInputElement>}
+            />
           </Label>
           <Button type="submit">생성하기</Button>
         </form>
       </Modal>
       <CreateChannelModal
+        workspace={workspace}
         show={showCreateChannelModal}
         onCloseModal={onCloseModal}
       />
+      <InviteWorkspaceModal
+        workspace={workspace}
+        show={showInviteWorkspaceModal}
+        setShowInviteWorkspaceModal={setShowInviteWorkspaceModal}
+        onCloseModal={onCloseModal}
+      />
+      {channel && (
+        <InviteChannelModal
+          workspace={workspace}
+          show={showInviteChannelModal}
+          setShowInviteChannelModal={setShowInviteChannelModal}
+          onCloseModal={onCloseModal}
+          channel={channel}
+        />
+      )}
     </div>
   );
+};
+Workspace.defaultProps = {
+  // channelMembersData: [],
+  channels: [],
+  channel: '',
 };
 export default Workspace;
