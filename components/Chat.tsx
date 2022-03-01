@@ -2,14 +2,18 @@ import ChatWrapper from '@styles/chat-styled';
 import Image from 'next/image';
 import gravatar from 'gravatar';
 import { IDM, IChat } from '@interfaces/db';
-import { VFC } from 'react';
+import { memo, VFC } from 'react';
 import dayjs from 'dayjs';
+import ChatContent from '@components/ChatContent';
 
 interface ChatProps {
   data: IDM | IChat;
 }
 const Chat: VFC<ChatProps> = ({ data }) => {
   const user = 'Sender' in data ? data.Sender : data.User;
+  // \d : 숫자
+  // + : 1개 이상
+  // ? : 0개 이상
   return (
     <ChatWrapper>
       <div className="chat-img">
@@ -30,9 +34,11 @@ const Chat: VFC<ChatProps> = ({ data }) => {
           <b>{user.nickname}</b>
           <span>{dayjs(data.createdAt).format('h:mm A')}</span>
         </div>
-        <p>{data.content}</p>
+        <p>
+          <ChatContent content={data.content} />
+        </p>
       </div>
     </ChatWrapper>
   );
 };
-export default Chat;
+export default memo(Chat);

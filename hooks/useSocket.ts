@@ -1,7 +1,8 @@
+import axiosBaseURL from '@config/axiosConfig';
 import { useCallback } from 'react';
 import io, { Socket } from 'socket.io-client';
 
-const backURL = 'http://192.168.219.117:3095';
+const backURL = axiosBaseURL;
 const sockets: { [key: string]: typeof Socket } = {};
 const useSocket = (workspace?: string) => {
   // disconnect : workspace가 있을 때 disconnect하는 callback-function이다.

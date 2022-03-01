@@ -4,8 +4,9 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import axios from 'axios';
 import '@styles/globals.css';
 import { useRef } from 'react';
+import { axiosBaseApiURL } from '@config/axiosConfig';
 
-axios.defaults.baseURL = 'http://192.168.219.117:3095/api';
+axios.defaults.baseURL = axiosBaseApiURL;
 axios.defaults.withCredentials = true;
 
 const MyApp = ({ Component, pageProps }: AppProps) => {

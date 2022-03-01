@@ -12,9 +12,12 @@ const DMList: FC<{ myData: IUser; workspace: string }> = ({
   workspace,
 }) => {
   const router = useRouter();
-  const { socket, disconnect } = useSocket(workspace);
+  const {
+    socket,
+    // disconnect
+  } = useSocket(workspace);
   const [channelCollapse, setChannelCollapse] = useState<boolean>(false);
-  const [countList, setCountList] = useState<{ [key: string]: number }>({});
+  // const [countList, setCountList] = useState<{ [key: string]: number }>({});
   const [onlineList, setOnlineList] = useState<number[]>([]);
 
   const { data: memberData } = useQuery<IUserWithOnline[]>(
@@ -26,17 +29,17 @@ const DMList: FC<{ myData: IUser; workspace: string }> = ({
     setChannelCollapse((prev) => !prev);
   }, []);
 
-  const resetCount = useCallback(
-    (id) => () => {
-      setCountList((list) => {
-        return {
-          ...list,
-          [id]: 0,
-        };
-      });
-    },
-    [],
-  );
+  // const resetCount = useCallback(
+  //   (id) => () => {
+  //     setCountList((list) => {
+  //       return {
+  //         ...list,
+  //         [id]: 0,
+  //       };
+  //     });
+  //   },
+  //   [],
+  // );
   useEffect(() => {
     socket?.on('onlineList', (data: number[]) => {
       setOnlineList(data);

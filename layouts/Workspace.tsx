@@ -41,7 +41,6 @@ import Modal from '@components/Modal';
 import CreateChannelModal from '@components/CreateChannelModal';
 import { IChannel, IUser } from '@interfaces/db';
 import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
-import InviteChannelModal from '@components/InviteChannelModal';
 import ChannelList from '@components/ChannelList';
 import DMList from '@components/DMList';
 import useSocket from '@hooks/useSocket';
@@ -49,16 +48,8 @@ import useSocket from '@hooks/useSocket';
 interface WorkspaceProps {
   workspace: string;
   channels?: IChannel[];
-  channel?: string;
-  // channelMembersData?: IUser[];
 }
-const Workspace: FC<WorkspaceProps> = ({
-  children,
-  workspace,
-  channels,
-  channel,
-  // channelMembersData = [],
-}) => {
+const Workspace: FC<WorkspaceProps> = ({ children, workspace, channels }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
   toast.configure();
@@ -77,7 +68,6 @@ const Workspace: FC<WorkspaceProps> = ({
   const [newUrl, onChangeNewUrl] = useInput('');
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] =
     useState(false);
-  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
 
   useEffect(() => {
     if (channels && myData && socket) {
@@ -142,7 +132,6 @@ const Workspace: FC<WorkspaceProps> = ({
     setShowCreateWorkspaceModal(false);
     setShowCreateChannelModal(false);
     setShowCreateWorkspaceModal(false);
-    setShowInviteChannelModal(false);
     setShowInviteWorkspaceModal(false);
     setShowInviteWorkspaceModal(false);
   }, []);
@@ -214,7 +203,7 @@ const Workspace: FC<WorkspaceProps> = ({
           <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
         </Workspaces>
         <Channels>
-          <WorkspaceName onClick={toggleWorkspaceModal}>Sleact</WorkspaceName>
+          <WorkspaceName onClick={toggleWorkspaceModal}>Clone</WorkspaceName>
           <MenuScroll>
             <Menu
               show={showWorkspaceModal}
@@ -274,21 +263,10 @@ const Workspace: FC<WorkspaceProps> = ({
         setShowInviteWorkspaceModal={setShowInviteWorkspaceModal}
         onCloseModal={onCloseModal}
       />
-      {channel && (
-        <InviteChannelModal
-          workspace={workspace}
-          show={showInviteChannelModal}
-          setShowInviteChannelModal={setShowInviteChannelModal}
-          onCloseModal={onCloseModal}
-          channel={channel}
-        />
-      )}
     </div>
   );
 };
 Workspace.defaultProps = {
-  // channelMembersData: [],
   channels: [],
-  channel: '',
 };
 export default Workspace;

@@ -64,8 +64,8 @@ const ChatBox: VFC<ChatBoxProps> = ({
   );
   const renderSuggestion = useCallback(
     (
-      suggestion: SuggestionDataItem,
-      search: string,
+      _suggestion: SuggestionDataItem,
+      _search: string,
       highlightedDisplay: ReactNode,
       index: number,
       focused: boolean,

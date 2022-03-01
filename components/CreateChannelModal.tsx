@@ -2,7 +2,7 @@ import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
 import { Button, Input, Label } from '@styles/signup-styled';
 import { createChannelFetcher } from '@utils/fetcher';
-import { FormEvent, memo, useCallback, VFC } from 'react';
+import { ChangeEventHandler, FormEvent, memo, useCallback, VFC } from 'react';
 import { useQueryClient } from 'react-query';
 
 interface CreateChannelModalProps {
@@ -38,7 +38,9 @@ const CreateChannelModal: VFC<CreateChannelModalProps> = ({
           <Input
             id="channel"
             value={newChannel}
-            onChange={onChangeNewChannel}
+            onChange={
+              onChangeNewChannel as ChangeEventHandler<HTMLInputElement>
+            }
           />
         </Label>
         <Button type="submit">생성하기</Button>

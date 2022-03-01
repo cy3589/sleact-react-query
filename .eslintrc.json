@@ -1,4 +1,6 @@
 {
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint/eslint-plugin"],
   "extends": ["airbnb", "plugin:prettier/recommended", "next/core-web-vitals"],
   "rules": {
     "react/jsx-filename-extension": [
@@ -13,6 +15,8 @@
       }
     ],
     "prettier/prettier": ["error"],
-    "react/jsx-props-no-spreading": "off"
+    "react/jsx-props-no-spreading": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error"]
   }
 }
