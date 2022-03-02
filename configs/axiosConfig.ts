@@ -1,4 +1,4 @@
-const axiosBaseURL = 'http://124.50.73.52:3095';
+const axiosBaseURL = 'http://192.168.219.117:3095';
 const axiosBaseApiURL = `${axiosBaseURL}/api`;
 export { axiosBaseApiURL };
 export default axiosBaseURL;

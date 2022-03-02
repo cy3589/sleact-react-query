@@ -26,12 +26,14 @@ import { OnChangeHandlerFunc } from 'react-mentions';
 import makeSection from '@utils/makeSection';
 import Scrollbars from 'react-custom-scrollbars';
 import useSocket from '@hooks/useSocket';
+import { toast } from 'react-toastify';
 
 interface DirectMessageProps {
   workspace: string;
   id: string;
 }
 const DirectMessage: FC<DirectMessageProps> = ({ workspace, id }) => {
+  toast.configure();
   const queryClient = useQueryClient();
   const router = useRouter();
   const [chat, onChangeChat, setChat] = useInput('');
@@ -89,6 +91,17 @@ const DirectMessage: FC<DirectMessageProps> = ({ workspace, id }) => {
             150
         )
           setTimeout(() => scrollbarRef.current?.scrollToBottom(), 0);
+        else {
+          toast.info('🦄 Wow so easy!', {
+            position: 'bottom-center',
+            autoClose: false,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        }
       }
     },
     [id, myData, queryClient, workspace],
@@ -163,7 +176,7 @@ const DirectMessage: FC<DirectMessageProps> = ({ workspace, id }) => {
         <ChatBox
           workspace={workspace}
           chat={chat}
-          onChangeChat={onChangeChat as OnChangeHandlerFunc}
+          onChangeChat={onChangeChat as unknown as OnChangeHandlerFunc}
           onSubmitForm={onSubmitForm}
         />
       </Container>

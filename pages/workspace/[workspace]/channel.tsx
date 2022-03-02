@@ -14,13 +14,24 @@ import {
   useQuery,
   useQueryClient,
 } from 'react-query';
-import { Container, Header } from '@styles/channel-styled';
+import {
+  Container,
+  // , DragOver
+  Header,
+} from '@styles/channel-styled';
 import { IChannel, IChat, IUser } from '@interfaces/db';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import ChatList from '@components/ChatList';
 import ChatBox from '@components/Chatbox';
 import useInput from '@hooks/useInput';
-import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  // DragEvent,
+} from 'react';
 import { OnChangeHandlerFunc } from 'react-mentions';
 import makeSection from '@utils/makeSection';
 import Scrollbars from 'react-custom-scrollbars';
@@ -64,8 +75,22 @@ const Channel = ({
       },
     },
   );
-  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
-
+  const [showInviteChannelModal, setShowInviteChannelModal] =
+    useState<boolean>(false);
+  // const [dragOver, setDragOver] = useState<boolean>(false);
+  // const onDragOver = useCallback(
+  //   (e: DragEvent<HTMLDivElement>) => {
+  //     console.log(e);
+  //     if (!dragOver) {
+  //       console.log('onDragOver!');
+  //       setDragOver(true);
+  //     }
+  //   },
+  //   [dragOver],
+  // );
+  // const onDrop = useCallback((e: DragEvent<HTMLDivElement>) => {
+  //   console.log(e);
+  // }, []);
   const onCloseModal = useCallback(() => {
     setShowInviteChannelModal(false);
   }, []);
@@ -185,9 +210,10 @@ const Channel = ({
         <ChatBox
           workspace={workspace}
           chat={chat}
-          onChangeChat={onChangeChat as OnChangeHandlerFunc}
+          onChangeChat={onChangeChat as unknown as OnChangeHandlerFunc}
           onSubmitForm={onSubmitForm}
         />
+        {/* {dragOver && <DragOver>업로드!</DragOver>} */}
       </Container>
       {channel && (
         <InviteChannelModal
