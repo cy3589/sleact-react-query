@@ -1,4 +1,4 @@
-const axiosBaseURL = 'http://192.168.219.117:3095';
+const axiosBaseURL = 'http://api-sleact.cy3589.com';
 const axiosBaseApiURL = `${axiosBaseURL}/api`;
 export { axiosBaseApiURL };
 export default axiosBaseURL;
