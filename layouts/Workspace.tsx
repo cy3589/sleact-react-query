@@ -113,10 +113,14 @@ const Workspace: FC<WorkspaceProps> = ({ children, workspace, channels }) => {
       if (!newWorkspace || !newWorkspace.trim() || !newUrl || !newUrl.trim())
         return;
       try {
-        await axios.post('/workspaces', {
-          workspace: newWorkspace,
-          url: newUrl,
-        });
+        await axios.post(
+          '/workspaces',
+          {
+            workspace: newWorkspace,
+            url: newUrl,
+          },
+          { withCredentials: true },
+        );
         queryClient.refetchQueries('user');
         setShowCreateWorkspaceModal(false);
       } catch (error: unknown) {

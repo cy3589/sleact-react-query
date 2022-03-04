@@ -34,7 +34,9 @@ const Login = () => {
   >(
     'user',
     (mutationData) =>
-      axios.post('/users/login', mutationData).then((r) => r.data),
+      axios
+        .post('/users/login', mutationData, { withCredentials: true })
+        .then((r) => r.data),
     {
       onMutate() {
         setLogInError(false);
