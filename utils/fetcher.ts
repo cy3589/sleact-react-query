@@ -1,5 +1,9 @@
 import { IChannel } from '@interfaces/db';
 import axios from 'axios';
+import { axiosBaseApiURL } from '@config/axiosConfig';
+
+axios.defaults.baseURL = axiosBaseApiURL;
+axios.defaults.withCredentials = true;
 
 const getMyDataUseCookie = async () => {
   const { data } = await axios.get(`/users`, {
@@ -10,7 +14,7 @@ const getMyDataUseCookie = async () => {
 
 const logoutFetcher = async () => {
   try {
-    await axios.post('/users/logout', {}, { withCredentials: true });
+    await axios.post('/users/logout');
   } catch (error) {
     // console.error(error);
   }
