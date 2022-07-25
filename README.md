@@ -19,3 +19,23 @@ Git: https://github.com/cy3589/sleact-react-query
     - 일반적인 게시글과 달리 역으로 동작해야하는 채팅의 무한스크롤을 구현하며 React-Query의 역방향 데이터 업데이트 방법을 알게되었습니다.
     - Emotion에 Type을 적용하여 정확한 type과 prop을 적용한 Emotion 사용법을 알게 되었습니다.
 
+### Directory
+
+- components
+    - 페이지 내에서 사용되는 컴포넌트
+- configs
+    - constant한 값
+- hooks
+    - 커스텀 훅
+- interfaces
+    - type과 interface
+- layouts
+    - 전체 레이아웃을 잡는 컴포넌트
+- pages
+    - 라우팅되는 페이지
+- public
+    - 정적 파일들
+- styles
+    - styled가 적용된 컴포넌트, css파일
+- utils
+    - 커스텀 함수
